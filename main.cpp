@@ -1,17 +1,17 @@
-/*
- * main.cpp
- *
- *  Created on: 22 may 2023
- *      Author: xabic
- */
-
-
 #include <stdio.h>
 #include <winsock2.h>
 #include <math.h>
+#include "cliente.h"
 
 #define SERVER_IP "127.0.0.1"
 #define SERVER_PORT 6000
+
+Cliente* cargarClientes(){
+	Cliente* listaClientes = new Cliente[10];
+	Cliente cliente(1,"zzz","123","123");
+	listaClientes[0]=cliente;
+	return listaClientes;
+}
 
 int main(int argc, char *argv[]) {
 
@@ -91,12 +91,62 @@ int main(int argc, char *argv[]) {
 	//SEND and RECEIVE data (CLIENT/SERVER PROTOCOL)
 	printf("Waiting for incoming commands from client... \n");
 	fflush(stdout);
+	do {
+		recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
+
+		printf("Command received: %s \n", recvBuff);
+		fflush(stdout);
+		if (strcmp(recvBuff, "INICIARSESION") == 0) {
+			fflush(stdout);
+		}
+		if (strcmp(recvBuff, "INICIARSESION") == 0) {
+			int contador = 0;
+			int correcto = 0;
+			char nombre[20];
+			char contra[20];
+			Cliente* listaClientes = cargarClientes();
+			recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
+			while (strcmp(recvBuff, "SESIONEND") != 0) {
+				if (contador == 0) {
+					strcpy(nombre, recvBuff);
+
+				}
+				else if (contador == 1) {
+					strcpy(contra, recvBuff);
+
+				}
+				recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
+				contador++;
+			}
+			//int numClientes = contarClientes();
+			for (int i = 0; i < 1; ++i) {
+				if (strcmp(listaClientes[i].getNombre(), nombre) == 0 && strcmp(listaClientes[i].getContra(), contra) == 0) {
+					correcto = 1;
+					break;  // Se encontró un cliente correcto, no es necesario seguir iterando
+				}
+			}
+			printf("Response sent: %d \n", correcto);
+			fflush(stdout);
+			sprintf(sendBuff, "%d", correcto);
+			send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+			printf("Response sent: %s \n", sendBuff);
+			fflush(stdout);
+		}
+
+		//if (strcmp(recvBuff, "EXIT") == 0)
+			//break;
+
+	} while (1);
+
+
+
 	do
 	{
 		recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
 
 		printf("Command received: %s \n", recvBuff);
 		fflush(stdout);
+
 		if (strcmp(recvBuff, "SUMAR") == 0)
 		{
 			int suma = 0;
