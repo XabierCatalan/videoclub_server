@@ -3,11 +3,12 @@
 #include <winsock2.h>
 #include <math.h>
 #include "cliente.h"
-#include "sqlite3.h"
 
-//extern "C"{
-//	#include "sqlite3.h"
-//}
+//#include "sqlite3.h"
+
+extern "C"{
+	#include "sqlite3.h"
+}
 
 #define SERVER_IP "127.0.0.1"
 #define SERVER_PORT 6000
@@ -65,6 +66,35 @@ char* load_config(char* filename, char* buscar) {
 	    return resultado;
 	}
 
+
+
+
+
+
+//Cliente* cargarClientes(){
+//	Cliente* listaClientes = new Cliente[10];
+//	Cliente cliente(1,"zzz","123","123");
+//	listaClientes[0]=cliente;
+//	return listaClientes;
+//}
+
+
+void inicializarBDD(){
+//	char*rutaBDD_server = new char[100];
+//	rutaBDD_server = "BDD_Prog.db";//load_config("config.txt","rutaBDD_server");
+//	printf("ruta BDD = %s \n", rutaBDD_server);
+
+		    sqlite3_open("BDD_Prog.db", &db);
+		    printf("base de datos inicializada \n");
+//		    free(rutaBDD_server);
+
+}
+
+void cerrarBDD(){
+	sqlite3_close(db);
+}
+
+
 int contarClientes(){
 	char sql[] = "SELECT COUNT(*) FROM Clientes";
 		    int count = 0;
@@ -88,6 +118,7 @@ int contarClientes(){
 		    return count;
 
 }
+
 
 Cliente* cargarClientes() {
     const char* sql = "select * from Clientes";
@@ -122,28 +153,6 @@ Cliente* cargarClientes() {
     return clientes;
 }
 
-
-//Cliente* cargarClientes(){
-//	Cliente* listaClientes = new Cliente[10];
-//	Cliente cliente(1,"zzz","123","123");
-//	listaClientes[0]=cliente;
-//	return listaClientes;
-//}
-
-
-void inicializarBDD(){
-	char*rutaBDD_server = new char[100];
-	rutaBDD_server = "BDD_Prog.db";//load_config("config.txt","rutaBDD_server");
-	printf("ruta BDD = %s \n", rutaBDD_server);
-
-		    sqlite3_open(rutaBDD_server, &db);
-		    free(rutaBDD_server);
-
-}
-
-void cerrarBDD(){
-	sqlite3_close(db);
-}
 
 	// FIN METODOS BASES DE DATOS
 
@@ -243,9 +252,11 @@ int main(int argc, char *argv[]) {
 
 			inicializarBDD();
 			Cliente* listaClientes = cargarClientes();
-			cerrarBDD();
+
 			printf("numero cliente: %i \n", contarClientes());
 			fflush(stdout);
+
+			cerrarBDD();
 
 			recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
 			while (strcmp(recvBuff, "SESIONEND") != 0) {
