@@ -104,16 +104,23 @@ Cliente* cargarClientes(){
 							Cliente c;
 							c.id = sqlite3_column_int(stmt,0);
 
-							c.nombre = malloc(strlen((char*) sqlite3_column_text(stmt, 1)));
-							strcpy(c.nombre,(char*) sqlite3_column_text(stmt, 1));
+							printf("0 = %i", sqlite3_column_int(stmt,0));
+							printf("1 = %s", sqlite3_column_text(stmt,1));
 
-							c.mail = malloc(strlen((char*) sqlite3_column_text(stmt, 2)));
-							strcpy(c.mail,(char*) sqlite3_column_text(stmt, 2));
 
-							c.contra = malloc(strlen((char*) sqlite3_column_text(stmt, 3)));
-							strcpy(c.contra,(char*) sqlite3_column_text(stmt, 3));
 
-							clients[contador] = c;
+//							c.nombre = new char[sqlite3_column_text(stmt, 1)];
+
+//							c.nombre = malloc(strlen((char*) sqlite3_column_text(stmt, 1)));
+//							strcpy(c.nombre,(char*) sqlite3_column_text(stmt, 1));
+//
+//							c.mail = malloc(strlen((char*) sqlite3_column_text(stmt, 2)));
+//							strcpy(c.mail,(char*) sqlite3_column_text(stmt, 2));
+//
+//							c.contra = malloc(strlen((char*) sqlite3_column_text(stmt, 3)));
+//							strcpy(c.contra,(char*) sqlite3_column_text(stmt, 3));
+//
+//							clients[contador] = c;
 
 
 							contador++;
