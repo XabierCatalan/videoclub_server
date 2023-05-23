@@ -84,7 +84,7 @@ void inicializarBDD(){
 //	rutaBDD_server = "BDD_Prog.db";//load_config("config.txt","rutaBDD_server");
 //	printf("ruta BDD = %s \n", rutaBDD_server);
 
-		    sqlite3_open("BDD_Prog.db", &db);
+		    sqlite3_open("BDD Prog.db", &db);
 		    printf("base de datos inicializada \n");
 //		    free(rutaBDD_server);
 
