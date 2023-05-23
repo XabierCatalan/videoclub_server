@@ -26,7 +26,7 @@ char* load_config(char* filename, char* buscar) {
 	    FILE* archivo;
 	    char linea[100];
 	    char* igual;
-	    char buscar2[20];
+	    char buscar2[40];
 	    fflush(stdout);
 	    archivo = fopen(filename, "r");
 
@@ -89,52 +89,37 @@ int contarClientes(){
 
 }
 
-Cliente* cargarClientes(){
-	char sql[] = "select * from Clientes";
-		Cliente* clients = (Cliente*) malloc(sizeof(Cliente) * contarClientes()) ;
-		int contador = 0;
+Cliente* cargarClientes() {
+    const char* sql = "select * from Clientes";
+    Cliente* clientes = new Cliente[30];
+    int contador = 0;
 
-			sqlite3_prepare_v2(db, sql, strlen(sql), &stmt, NULL) ;
+    sqlite3_prepare_v2(db, sql, strlen(sql), &stmt, NULL);
 
-			do {
-						result = sqlite3_step(stmt) ;
+    do {
+        result = sqlite3_step(stmt);
 
+        if (result == SQLITE_ROW) {
+        	Cliente a;
+            a.id = sqlite3_column_int(stmt, 0);
 
-						if (result == SQLITE_ROW) {
-							Cliente c;
-							c.id = sqlite3_column_int(stmt,0);
+            a.nombre = new char[strlen((char*)sqlite3_column_text(stmt, 1)) + 1];
+            strcpy(a.nombre, (char*)sqlite3_column_text(stmt, 1));
 
-							printf("0 = %i", sqlite3_column_int(stmt,0));
-							printf("1 = %s", sqlite3_column_text(stmt,1));
+            a.mail = new char[strlen((char*)sqlite3_column_text(stmt, 2)) + 1];
+            strcpy(a.mail, (char*)sqlite3_column_text(stmt, 2));
 
+            a.contra = new char[strlen((char*)sqlite3_column_text(stmt, 3)) + 1];
+            strcpy(a.contra, (char*)sqlite3_column_text(stmt, 3));
 
+            clientes[contador] = a;
+            contador++;
+        }
+    } while (result == SQLITE_ROW);
 
-//							c.nombre = new char[sqlite3_column_text(stmt, 1)];
+    sqlite3_finalize(stmt);
 
-//							c.nombre = malloc(strlen((char*) sqlite3_column_text(stmt, 1)));
-//							strcpy(c.nombre,(char*) sqlite3_column_text(stmt, 1));
-//
-//							c.mail = malloc(strlen((char*) sqlite3_column_text(stmt, 2)));
-//							strcpy(c.mail,(char*) sqlite3_column_text(stmt, 2));
-//
-//							c.contra = malloc(strlen((char*) sqlite3_column_text(stmt, 3)));
-//							strcpy(c.contra,(char*) sqlite3_column_text(stmt, 3));
-//
-//							clients[contador] = c;
-
-
-							contador++;
-
-
-						}
-					}  while (result == SQLITE_ROW);
-
-
-
-				 sqlite3_finalize(stmt);
-
-				 return clients;
-
+    return clientes;
 }
 
 
@@ -147,8 +132,8 @@ Cliente* cargarClientes(){
 
 
 void inicializarBDD(){
-
-	char*rutaBDD_server =load_config("../videoclub_prog4-master/sql/prueba.txt","rutaBDD_server");
+	char*rutaBDD_server = new char[100];
+	rutaBDD_server ="../proyecto_pong/sql/BDD_Prog.db";
 
 		    sqlite3_open(rutaBDD_server, &db);
 		    free(rutaBDD_server);
@@ -258,6 +243,8 @@ int main(int argc, char *argv[]) {
 			inicializarBDD();
 			Cliente* listaClientes = cargarClientes();
 			cerrarBDD();
+			printf("Response sent: %s \n", listaClientes[0].getNombre());
+			fflush(stdout);
 
 			recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
 			while (strcmp(recvBuff, "SESIONEND") != 0) {
