@@ -133,7 +133,8 @@ Cliente* cargarClientes() {
 
 void inicializarBDD(){
 	char*rutaBDD_server = new char[100];
-	rutaBDD_server ="../proyecto_pong/sql/BDD_Prog.db";
+	rutaBDD_server = "BDD_Prog.db";//load_config("config.txt","rutaBDD_server");
+	printf("ruta BDD = %s \n", rutaBDD_server);
 
 		    sqlite3_open(rutaBDD_server, &db);
 		    free(rutaBDD_server);
@@ -243,7 +244,7 @@ int main(int argc, char *argv[]) {
 			inicializarBDD();
 			Cliente* listaClientes = cargarClientes();
 			cerrarBDD();
-			printf("Response sent: %s \n", listaClientes[0].getNombre());
+			printf("numero cliente: %i \n", contarClientes());
 			fflush(stdout);
 
 			recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
