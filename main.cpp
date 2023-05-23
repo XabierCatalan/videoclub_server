@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <winsock2.h>
 #include <math.h>
 #include "cliente.h"
@@ -13,6 +14,9 @@
 
 
 	int result;
+
+
+	// METODOS BASES DE DATOS
 
 char* load_config(char* filename, char* buscar) {
 	    FILE* archivo;
@@ -57,21 +61,86 @@ char* load_config(char* filename, char* buscar) {
 	    return resultado;
 	}
 
+int contarClientes(){
+	char sql[] = "SELECT COUNT(*) FROM Clientes";
+		    int count = 0;
+
+		    sqlite3_stmt *stmt;
+		    int result = sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
+
+		    if (result != SQLITE_OK) {
+		        // Manejar el error en la preparación de la consulta
+		        return -1;
+		    }
+
+		    result = sqlite3_step(stmt);
+
+		    if (result == SQLITE_ROW) {
+		        count = sqlite3_column_int(stmt, 0);
+		    }
+
+		    sqlite3_finalize(stmt);
+
+		    return count;
+
+}
 
 Cliente* cargarClientes(){
-	Cliente* listaClientes = new Cliente[10];
-	Cliente cliente(1,"zzz","123","123");
-	listaClientes[0]=cliente;
-	return listaClientes;
+	char sql[] = "select * from Clientes";
+		Cliente* clients = (Cliente*) malloc(sizeof(Cliente) * contarClientes()) ;
+		int contador = 0;
+
+			sqlite3_prepare_v2(db, sql, strlen(sql), &stmt, NULL) ;
+
+			do {
+						result = sqlite3_step(stmt) ;
+
+
+						if (result == SQLITE_ROW) {
+							Cliente c;
+							c.id = sqlite3_column_int(stmt,0);
+
+							c.nombre = malloc(strlen((char*) sqlite3_column_text(stmt, 1)));
+							strcpy(c.nombre,(char*) sqlite3_column_text(stmt, 1));
+
+							c.mail = malloc(strlen((char*) sqlite3_column_text(stmt, 2)));
+							strcpy(c.mail,(char*) sqlite3_column_text(stmt, 2));
+
+							c.contra = malloc(strlen((char*) sqlite3_column_text(stmt, 3)));
+							strcpy(c.contra,(char*) sqlite3_column_text(stmt, 3));
+
+							clients[contador] = c;
+
+
+							contador++;
+
+
+						}
+					}  while (result == SQLITE_ROW);
+
+
+
+				 sqlite3_finalize(stmt);
+
+				 return clients;
+
 }
+
+
+//Cliente* cargarClientes(){
+//	Cliente* listaClientes = new Cliente[10];
+//	Cliente cliente(1,"zzz","123","123");
+//	listaClientes[0]=cliente;
+//	return listaClientes;
+//}
 
 
 void inicializarBDD(){
 
-	char*rutaBDD_admin =load_config("sql/prueba.txt","rutaBDD_admin");
+	char*rutaBDD_server =load_config("../videoclub_prog4-master/sql/prueba.txt","rutaBDD_server");
 
-		    sqlite3_open(rutaBDD_admin, &db);
-		    free(rutaBDD_admin);
+		    sqlite3_open(rutaBDD_server, &db);
+		    free(rutaBDD_server);
 
 }
 
@@ -79,7 +148,7 @@ void cerrarBDD(){
 	sqlite3_close(db);
 }
 
-
+	// FIN METODOS BASES DE DATOS
 
 
 int main(int argc, char *argv[]) {
