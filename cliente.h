@@ -9,12 +9,12 @@
 #define CLIENTE_H_
 
 class Cliente {
-private:
+public:
 	int id;
 	char* nombre;
 	char* mail;
 	char* contra;
-public:
+
 	Cliente();
 	Cliente(int id, char* nombre, char* mail, char* contra);
 	virtual ~Cliente();

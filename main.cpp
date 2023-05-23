@@ -5,6 +5,10 @@
 #include "cliente.h"
 #include "sqlite3.h"
 
+//extern "C"{
+//	#include "sqlite3.h"
+//}
+
 #define SERVER_IP "127.0.0.1"
 #define SERVER_PORT 6000
 
@@ -242,7 +246,12 @@ int main(int argc, char *argv[]) {
 			int correcto = 0;
 			char nombre[20];
 			char contra[20];
+
+
+			inicializarBDD();
 			Cliente* listaClientes = cargarClientes();
+			cerrarBDD();
+
 			recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
 			while (strcmp(recvBuff, "SESIONEND") != 0) {
 				if (contador == 0) {
