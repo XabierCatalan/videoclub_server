@@ -3,6 +3,7 @@
 #include <winsock2.h>
 #include <math.h>
 #include "cliente.h"
+#include "pelicula.h"
 
 //#include "sqlite3.h"
 
@@ -65,18 +66,6 @@ char* load_config(char* filename, char* buscar) {
 	    fclose(archivo);
 	    return resultado;
 }
-
-
-
-
-
-
-//Cliente* cargarClientes(){
-//	Cliente* listaClientes = new Cliente[10];
-//	Cliente cliente(1,"zzz","123","123");
-//	listaClientes[0]=cliente;
-//	return listaClientes;
-//}
 
 
 void inicializarBDD(){
@@ -153,7 +142,114 @@ Cliente* cargarClientes() {
     return clientes;
 }
 
+int contarPeliculas(){
+	char sql[] = "SELECT COUNT(*) FROM Peliculas";
+		    int count = 0;
 
+		    sqlite3_stmt *stmt;
+		    int result = sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
+
+		    if (result != SQLITE_OK) {
+		        // Manejar el error en la preparación de la consulta
+		        return -1;
+		    }
+
+		    result = sqlite3_step(stmt);
+
+		    if (result == SQLITE_ROW) {
+		        count = sqlite3_column_int(stmt, 0);
+		    }
+
+		    sqlite3_finalize(stmt);
+
+		    return count;
+
+}
+Pelicula* cargarPelis() {
+    const char* sql = "select * from Peliculas";
+    Pelicula* pelis = new Pelicula[30];
+    int contador = 0;
+
+    sqlite3_prepare_v2(db, sql, strlen(sql), &stmt, NULL);
+
+    do {
+        result = sqlite3_step(stmt);
+
+        if (result == SQLITE_ROW) {
+        	Pelicula a;
+            a.id_pelicula = sqlite3_column_int(stmt, 0);
+
+            a.titulo = new char[strlen((char*)sqlite3_column_text(stmt, 1)) + 1];
+            strcpy(a.titulo, (char*)sqlite3_column_text(stmt, 1));
+
+            a.cod_genero = sqlite3_column_int(stmt, 2);
+
+            a.director = new char[strlen((char*)sqlite3_column_text(stmt, 3)) + 1];
+            strcpy(a.director, (char*)sqlite3_column_text(stmt, 3));
+
+            a.cod_formato = sqlite3_column_int(stmt, 4);
+
+            a.precio = sqlite3_column_double(stmt, 5);
+
+            a.cantidad = sqlite3_column_int(stmt, 6);
+
+            pelis[contador] = a;
+            contador++;
+        }
+    } while (result == SQLITE_ROW);
+
+    sqlite3_finalize(stmt);
+
+    return pelis;
+}
+
+char* buscarGenero (int cod_gen)
+{
+	char* gen;
+
+	char sql[] = "select Nombre_Gen from Generos where Cod_Gen = ?";
+
+	sqlite3_prepare_v2(db, sql, strlen(sql), &stmt2, NULL) ;
+	sqlite3_bind_int(stmt2,1,cod_gen);
+
+
+	result = sqlite3_step(stmt2) ;
+	if (result == SQLITE_ROW) {
+		//printf("%s\n", (char*) sqlite3_column_text(stmt, 0));
+		gen = (char*) sqlite3_column_text(stmt2, 0);
+
+		return gen;
+
+		} else {
+
+			return gen = "Genero no encontrado";
+		}
+
+	sqlite3_finalize(stmt2);
+
+}
+char* buscarFormato (int cod_for){
+	char* form;
+
+		char sql[] = "select Nombre_For from Formato where Cod_For = ?";
+
+		sqlite3_prepare_v2(db, sql, strlen(sql), &stmt2, NULL) ;
+		sqlite3_bind_int(stmt2,1,cod_for);
+
+		result = sqlite3_step(stmt2) ;
+		if (result == SQLITE_ROW) {
+			//printf("%s\n", (char*) sqlite3_column_text(stmt, 0));
+			form = (char*) sqlite3_column_text(stmt2, 0);
+
+			return form;
+
+			} else {
+
+				return form = "formato no encontrado";
+			}
+
+		sqlite3_finalize(stmt2);
+}
 	// FIN METODOS BASES DE DATOS
 
 
@@ -241,9 +337,6 @@ int main(int argc, char *argv[]) {
 		printf("Command received: %s \n", recvBuff);
 		fflush(stdout);
 		if (strcmp(recvBuff, "INICIARSESION") == 0) {
-			fflush(stdout);
-		}
-		if (strcmp(recvBuff, "INICIARSESION") == 0) {
 			int contador = 0;
 			int correcto = 0;
 			char nombre[20];
@@ -300,19 +393,33 @@ int main(int argc, char *argv[]) {
 		printf("Command received: %s \n", recvBuff);
 		fflush(stdout);
 
-		if (strcmp(recvBuff, "SUMAR") == 0)
+		if (strcmp(recvBuff, "VERPELIS") == 0)
 		{
-			int suma = 0;
+			inicializarBDD();
+			Pelicula* listaPelis=cargarPelis();
+			int cantidad=contarPeliculas();
+
 			recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
-			while (strcmp(recvBuff, "SUMAR-END") != 0)
-			{
-				int n = atoi(recvBuff);
-				suma += n;
-				recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
-			}
-			sprintf(sendBuff, "%d", suma);
+			sprintf(sendBuff, "%d", cantidad);
 			send(comm_socket, sendBuff, sizeof(sendBuff), 0);
-			printf("Response sent: %s \n", sendBuff);
+			for (int i = 0; i < cantidad; ++i) {
+				sprintf(sendBuff, "%d", listaPelis[i].id_pelicula);
+				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+				sprintf(sendBuff, "%s", listaPelis[i].titulo);
+				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+				sprintf(sendBuff, "%s", buscarGenero(listaPelis[i].cod_genero));
+				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+				sprintf(sendBuff, "%s", listaPelis[i].director);
+				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+				sprintf(sendBuff, "%s", buscarFormato(listaPelis[i].cod_formato));
+				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+				sprintf(sendBuff, "%f", listaPelis[i].precio);
+				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+				sprintf(sendBuff, "%d", listaPelis[i].cantidad);
+				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+			}
+			cerrarBDD();
+			printf("Response sent: enviado \n");
 			fflush(stdout);
 		}
 
