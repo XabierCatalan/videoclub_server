@@ -24,18 +24,18 @@ extern "C"{
 	// METODOS BASES DE DATOS
 
 char* load_config(char* filename, char* buscar) {
-	    FILE* archivo;
+	FILE* archivo;
 	    char linea[100];
 	    char* igual;
-	    char buscar2[40];
-	    fflush(stdout);
+	    char buscar2[100];
+
 	    archivo = fopen(filename, "r");
 
 	    if (archivo == NULL) {
 	        printf("Error al abrir el archivo.\n");
 	        return NULL;
 	    }
-	    fflush(stdout);
+
 	    char* resultado = NULL;
 	    while (fgets(linea, 100, archivo)) {
 	        int i = 0;
@@ -54,17 +54,17 @@ char* load_config(char* filename, char* buscar) {
 	                    printf("Error al asignar memoria.\n");
 	                    return NULL;
 	                }
-	                fflush(stdout);
 	                strncpy(resultado, igual + 1, longitud);
 	                resultado[longitud - 1] = '\0';
 	            }
 	        }
 	    }
 
+	    printf("resultado = %s \n", resultado);
+
 	    fclose(archivo);
-	    fflush(stdout);
 	    return resultado;
-	}
+}
 
 
 
@@ -80,13 +80,13 @@ char* load_config(char* filename, char* buscar) {
 
 
 void inicializarBDD(){
-//	char*rutaBDD_server = new char[100];
-//	rutaBDD_server = load_config("videoclub_server/config.txt","rutaBDD_server");
-//	printf("ruta BDD = %s \n", rutaBDD_server);
 
-		    sqlite3_open("../videoclub_prog4-master/sql/BDD_Prog.db", &db);
+	char* rutaBDD_server = load_config("../videoclub_prog4-master/sql/prueba.txt","rutaBDD_server");
+	printf("ruta BDD = %s \n", rutaBDD_server);
+
+		    sqlite3_open(rutaBDD_server, &db);
 		    printf("base de datos inicializada \n");
-//		    free(rutaBDD_server);
+		    free(rutaBDD_server);
 
 }
 
