@@ -200,6 +200,9 @@ Pelicula* cargarPelis() {
 
     sqlite3_finalize(stmt);
 
+    printf("peliculas cargadas");
+    fflush(stdout);
+
     return pelis;
 }
 
@@ -379,6 +382,49 @@ int main(int argc, char *argv[]) {
 			fflush(stdout);
 		}
 
+		if (strcmp(recvBuff, "VERPELIS") == 0)
+				{
+					printf("verPeliculas activado");
+
+					inicializarBDD();
+					Pelicula* listaPelis=cargarPelis();
+					int cantidad=contarPeliculas();
+
+					recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
+					sprintf(sendBuff, "%d", cantidad);
+					send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+					for (int i = 0; i < cantidad; ++i) {
+						sprintf(sendBuff, "%d", listaPelis[i].id_pelicula);
+						send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+						sprintf(sendBuff, "%s", listaPelis[i].titulo);
+						send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+						sprintf(sendBuff, "%s", buscarGenero(listaPelis[i].cod_genero));
+						send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+						sprintf(sendBuff, "%s", listaPelis[i].director);
+						send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+						sprintf(sendBuff, "%s", buscarFormato(listaPelis[i].cod_formato));
+						send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+						sprintf(sendBuff, "%f", listaPelis[i].precio);
+						send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+						sprintf(sendBuff, "%d", listaPelis[i].cantidad);
+						send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+
+						printf("id = %d \n", listaPelis[i].id_pelicula);
+						printf("titulo = %s \n", listaPelis[i].titulo);
+						printf("genero = %s \n", buscarGenero(listaPelis[i].cod_genero));
+						printf("director = %s \n", listaPelis[i].director);
+						printf("formato = %s \n", buscarFormato(listaPelis[i].cod_formato));
+						printf("precio = %f \n", listaPelis[i].precio);
+						printf("cantidad = %d \n", listaPelis[i].cantidad);
+
+						printf("peli mandada \n");
+						fflush(stdout);
+					}
+					cerrarBDD();
+					printf("Response sent: enviado \n");
+					fflush(stdout);
+				}
+
 		//if (strcmp(recvBuff, "EXIT") == 0)
 			//break;
 
@@ -393,35 +439,40 @@ int main(int argc, char *argv[]) {
 		printf("Command received: %s \n", recvBuff);
 		fflush(stdout);
 
-		if (strcmp(recvBuff, "VERPELIS") == 0)
-		{
-			inicializarBDD();
-			Pelicula* listaPelis=cargarPelis();
-			int cantidad=contarPeliculas();
-
-			recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
-			sprintf(sendBuff, "%d", cantidad);
-			send(comm_socket, sendBuff, sizeof(sendBuff), 0);
-			for (int i = 0; i < cantidad; ++i) {
-				sprintf(sendBuff, "%d", listaPelis[i].id_pelicula);
-				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
-				sprintf(sendBuff, "%s", listaPelis[i].titulo);
-				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
-				sprintf(sendBuff, "%s", buscarGenero(listaPelis[i].cod_genero));
-				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
-				sprintf(sendBuff, "%s", listaPelis[i].director);
-				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
-				sprintf(sendBuff, "%s", buscarFormato(listaPelis[i].cod_formato));
-				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
-				sprintf(sendBuff, "%f", listaPelis[i].precio);
-				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
-				sprintf(sendBuff, "%d", listaPelis[i].cantidad);
-				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
-			}
-			cerrarBDD();
-			printf("Response sent: enviado \n");
-			fflush(stdout);
-		}
+//		if (strcmp(recvBuff, "VERPELIS") == 0)
+//		{
+//			printf("verPeliculas activado");
+//
+//			inicializarBDD();
+//			Pelicula* listaPelis=cargarPelis();
+//			int cantidad=contarPeliculas();
+//
+//			recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
+//			sprintf(sendBuff, "%d", cantidad);
+//			send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+//			for (int i = 0; i < cantidad; ++i) {
+//				sprintf(sendBuff, "%d", listaPelis[i].id_pelicula);
+//				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+//				sprintf(sendBuff, "%s", listaPelis[i].titulo);
+//				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+//				sprintf(sendBuff, "%s", buscarGenero(listaPelis[i].cod_genero));
+//				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+//				sprintf(sendBuff, "%s", listaPelis[i].director);
+//				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+//				sprintf(sendBuff, "%s", buscarFormato(listaPelis[i].cod_formato));
+//				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+//				sprintf(sendBuff, "%f", listaPelis[i].precio);
+//				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+//				sprintf(sendBuff, "%d", listaPelis[i].cantidad);
+//				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+//
+//				printf("peli mandada");
+//				fflush(stdout);
+//			}
+//			cerrarBDD();
+//			printf("Response sent: enviado \n");
+//			fflush(stdout);
+//		}
 
 		if (strcmp(recvBuff, "RAIZ") == 0)
 		{
