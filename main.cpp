@@ -409,15 +409,15 @@ int main(int argc, char *argv[]) {
 						sprintf(sendBuff, "%d", listaPelis[i].cantidad);
 						send(comm_socket, sendBuff, sizeof(sendBuff), 0);
 
-						printf("id = %d \n", listaPelis[i].id_pelicula);
-						printf("titulo = %s \n", listaPelis[i].titulo);
-						printf("genero = %s \n", buscarGenero(listaPelis[i].cod_genero));
-						printf("director = %s \n", listaPelis[i].director);
-						printf("formato = %s \n", buscarFormato(listaPelis[i].cod_formato));
-						printf("precio = %f \n", listaPelis[i].precio);
-						printf("cantidad = %d \n", listaPelis[i].cantidad);
+//						printf("id = %d \n", listaPelis[i].id_pelicula);
+//						printf("titulo = %s \n", listaPelis[i].titulo);
+//						printf("genero = %s \n", buscarGenero(listaPelis[i].cod_genero));
+//						printf("director = %s \n", listaPelis[i].director);
+//						printf("formato = %s \n", buscarFormato(listaPelis[i].cod_formato));
+//						printf("precio = %f \n", listaPelis[i].precio);
+//						printf("cantidad = %d \n", listaPelis[i].cantidad);
 
-						printf("peli mandada \n");
+//						printf("peli mandada \n");
 						fflush(stdout);
 					}
 					cerrarBDD();
