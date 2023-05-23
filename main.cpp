@@ -80,13 +80,13 @@ char* load_config(char* filename, char* buscar) {
 
 
 void inicializarBDD(){
-	char*rutaBDD_server = new char[100];
-	rutaBDD_server = load_config("config.txt","rutaBDD_server");
-	printf("ruta BDD = %s \n", rutaBDD_server);
+//	char*rutaBDD_server = new char[100];
+//	rutaBDD_server = load_config("videoclub_server/config.txt","rutaBDD_server");
+//	printf("ruta BDD = %s \n", rutaBDD_server);
 
-		    sqlite3_open("BDD Prog.db", &db);
+		    sqlite3_open("../videoclub_prog4-master/sql/BDD_Prog.db", &db);
 		    printf("base de datos inicializada \n");
-		    free(rutaBDD_server);
+//		    free(rutaBDD_server);
 
 }
 
