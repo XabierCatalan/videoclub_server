@@ -54,8 +54,8 @@ char* load_config(char* filename, char* buscar) {
 	                    printf("Error al asignar memoria.\n");
 	                    return NULL;
 	                }
-	                strncpy(resultado, igual + 1, longitud);
-	                resultado[longitud - 1] = '\0';
+	                strcpy(resultado, igual + 1);
+
 	            }
 	        }
 	    }
