@@ -2,9 +2,61 @@
 #include <winsock2.h>
 #include <math.h>
 #include "cliente.h"
+#include "sqlite3.h"
 
 #define SERVER_IP "127.0.0.1"
 #define SERVER_PORT 6000
+
+	sqlite3 *db;
+	sqlite3_stmt *stmt;
+	sqlite3_stmt *stmt2;
+
+
+	int result;
+
+char* load_config(char* filename, char* buscar) {
+	    FILE* archivo;
+	    char linea[100];
+	    char* igual;
+	    char buscar2[20];
+	    fflush(stdout);
+	    archivo = fopen(filename, "r");
+
+	    if (archivo == NULL) {
+	        printf("Error al abrir el archivo.\n");
+	        return NULL;
+	    }
+	    fflush(stdout);
+	    char* resultado = NULL;
+	    while (fgets(linea, 100, archivo)) {
+	        int i = 0;
+	        while (linea[i] != '=') {
+	            buscar2[i] = linea[i];
+	            i++;
+	        }
+	        buscar2[i] = '\0';
+
+	        if (strcmp(buscar, buscar2) == 0) {
+	            igual = strchr(linea, '=');
+	            if (igual != NULL) {
+	                int longitud = strlen(igual + 1);
+	                resultado = (char*) realloc(resultado, longitud * sizeof(char));
+	                if (resultado == NULL) {
+	                    printf("Error al asignar memoria.\n");
+	                    return NULL;
+	                }
+	                fflush(stdout);
+	                strncpy(resultado, igual + 1, longitud);
+	                resultado[longitud - 1] = '\0';
+	            }
+	        }
+	    }
+
+	    fclose(archivo);
+	    fflush(stdout);
+	    return resultado;
+	}
+
 
 Cliente* cargarClientes(){
 	Cliente* listaClientes = new Cliente[10];
@@ -12,6 +64,23 @@ Cliente* cargarClientes(){
 	listaClientes[0]=cliente;
 	return listaClientes;
 }
+
+
+void inicializarBDD(){
+
+	char*rutaBDD_admin =load_config("sql/prueba.txt","rutaBDD_admin");
+
+		    sqlite3_open(rutaBDD_admin, &db);
+		    free(rutaBDD_admin);
+
+}
+
+void cerrarBDD(){
+	sqlite3_close(db);
+}
+
+
+
 
 int main(int argc, char *argv[]) {
 
