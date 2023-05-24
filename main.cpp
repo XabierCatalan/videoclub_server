@@ -699,11 +699,13 @@ int main(int argc, char *argv[]) {
 
 //						printf("peli mandada \n");
 						fflush(stdout);
-						delete[] listaPelis;
+
 					}
 //					cerrarBDD();
 					printf("Response sent: enviado \n");
 					fflush(stdout);
+					delete[] listaPelis;
+
 				}
 
 
