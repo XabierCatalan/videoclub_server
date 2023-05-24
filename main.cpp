@@ -153,40 +153,7 @@ Cliente* cargarClientes() {
 
 
 
-//Cliente* cargarClientes() {
-//    const char* sql = "select * from Clientes";
-//    Cliente* clientes = new Cliente[contarClientes()];
-//    int contador = 0;
-//
-//    sqlite3_prepare_v2(db, sql, strlen(sql), &stmt, NULL);
-//
-//    do {
-//        result = sqlite3_step(stmt);
-//
-//        if (result == SQLITE_ROW) {
-//        	Cliente a;
-//            a.id = sqlite3_column_int(stmt, 0);
-//
-//            a.nombre = new char[strlen((char*)sqlite3_column_text(stmt, 1)) + 1];
-//            strcpy(a.nombre, (char*)sqlite3_column_text(stmt, 1));
-//
-//            a.mail = new char[strlen((char*)sqlite3_column_text(stmt, 2)) + 1];
-//            strcpy(a.mail, (char*)sqlite3_column_text(stmt, 2));
-//
-//            a.contra = new char[strlen((char*)sqlite3_column_text(stmt, 3)) + 1];
-//            strcpy(a.contra, (char*)sqlite3_column_text(stmt, 3));
-//
-//            a.saldo = sqlite3_column_double(stmt, 4);
-//
-//            clientes[contador] = a;
-//            contador++;
-//        }
-//    } while (result == SQLITE_ROW);
-//
-//    sqlite3_finalize(stmt);
-//
-//    return clientes;
-//}
+
 
 
 int contarPeliculas(){
@@ -554,17 +521,17 @@ int main(int argc, char *argv[]) {
 	struct sockaddr_in server;
 	struct sockaddr_in client;
 	char sendBuff[512], recvBuff[512];
-	FILE* f;
-
-	    char* ruta1 = "../videoclub_prog4-master/sql/prueba.txt";
-	    char* ruta2 = "rutaLogger";
-
-	    char*config = load_config(ruta1, ruta2);
-
-	    f = fopen(config, "w");
+//	FILE* f;
+//
+//	    char* ruta1 = "../videoclub_prog4-master/sql/prueba.txt";
+//	    char* ruta2 = "rutaLogger";
+//
+//	    char*config = load_config(ruta1, ruta2);
+//
+//	    f = fopen(config, "w");
 
 	printf("\nInitialising Winsock...\n");
-	fprintf(f,"%s\n", "\nInitialising Winsock...\n");
+//	fprintf(f,"%s\n", "\nInitialising Winsock...\n");
 	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
 		printf("Failed. Error Code : %d", WSAGetLastError());
 		fflush(stdout);
@@ -572,7 +539,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	printf("Initialised.\n");
-	fprintf(f,"%s\n", "Initialised.\n");
+//	fprintf(f,"%s\n", "Initialised.\n");
 	fflush(stdout);
 
 	//SOCKET creation
@@ -883,8 +850,8 @@ int main(int argc, char *argv[]) {
 
 
 	// CLOSING the sockets and cleaning Winsock...
-	cerrarBDD();
-	fclose(f);
+//	cerrarBDD();
+//	fclose(f);
 	closesocket(comm_socket);
 	WSACleanup();
 
