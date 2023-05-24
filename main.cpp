@@ -424,6 +424,126 @@ void actualizarCantidad(int cantidad, int id_peli){
 
 }
 
+int comprobarCompras(int id_cliente, int id_peli){
+
+	char sql[] = "SELECT COUNT(*) FROM Compras where Id_Pelicula = ? and Id = ?";
+			    int count = 0;
+
+			    sqlite3_stmt *stmt;
+			    int result = sqlite3_prepare_v2(db, sql, strlen(sql), &stmt, 0);
+			    sqlite3_bind_double(stmt2, 1, id_peli);
+			    sqlite3_bind_int(stmt2, 2, id_cliente);
+
+			    if (result != SQLITE_OK) {
+			        // Manejar el error en la preparación de la consulta
+			        return -1;
+			    }
+
+			    result = sqlite3_step(stmt);
+
+			    if (result == SQLITE_ROW) {
+			        count = sqlite3_column_int(stmt, 0);
+			    }
+
+			    sqlite3_finalize(stmt);
+
+			    return count;
+
+}
+
+void insertarCompra(int id_p, int id_c, int cant){
+	char sql[] = "insert into Compras (Id, Id_Pelicula, Cantidad"
+				") values ( ?,?,?)";
+
+		sqlite3_prepare_v2(db, sql, strlen(sql), &stmt, NULL) ;
+
+		sqlite3_bind_int(stmt,1,id_c);
+		sqlite3_bind_int(stmt,2,id_p);
+		sqlite3_bind_int(stmt,3,cant);
+
+
+
+
+		 if (result != SQLITE_OK) {
+			    fprintf(stderr, "Error en la consulta: %s\n", sqlite3_errmsg(db));
+
+			  }
+
+			result = sqlite3_step(stmt);
+
+
+
+			if (result != SQLITE_DONE) {
+				fprintf(stderr, "Error en la insercion: %s\n", sqlite3_errmsg(db));
+
+			  } else {
+				 printf("pelicula insertada\n");
+
+			  }
+
+			  sqlite3_finalize(stmt);
+
+
+
+}
+
+int contarCantidadCompra(int id_c, int id_p){
+	int cantidad = 0;
+
+		char sql[] = "SELECT Cantidad FROM Compras where Id = ? and Id_Pelicula = ?";
+
+		sqlite3_prepare_v2(db, sql, strlen(sql), &stmt, NULL) ;
+		sqlite3_bind_int(stmt,1,id_c);
+		sqlite3_bind_int(stmt,2,id_p);
+
+
+		result = sqlite3_step(stmt) ;
+
+		cantidad = sqlite3_column_int(stmt, 0);
+
+
+		fflush(stdout);
+
+		sqlite3_finalize(stmt);
+
+		return cantidad;
+
+
+}
+
+void actualizarCompras(int cantidad, int id_p, int id_c){
+
+
+	char sql[] = "UPDATE Compras SET Cantidad = ? where Id_Pelicula = ? and Id = ?";
+
+	int viejaCant = contarCantidadCompra(id_c, id_p);
+	int nuevaCant = cantidad + viejaCant;
+
+			sqlite3_prepare_v2(db, sql, strlen(sql), &stmt3, NULL);
+			sqlite3_bind_int(stmt3, 1, nuevaCant);
+			sqlite3_bind_int(stmt3, 2, id_p);
+			sqlite3_bind_int(stmt,3,id_c);
+
+			 if (result != SQLITE_OK) {
+			    fprintf(stderr, "Error en la consulta: %s\n", sqlite3_errmsg(db));
+
+			  }
+
+			result = sqlite3_step(stmt3);
+
+			if (result != SQLITE_DONE) {
+				fprintf(stderr, "Error en la actualización: %s\n", sqlite3_errmsg(db));
+
+			  } else {
+				 printf("cantidad actualizada\n");
+
+			  }
+			 fflush(stdout);
+
+			  sqlite3_finalize(stmt3);
+
+}
+
 	// FIN METODOS BASES DE DATOS
 
 
@@ -678,6 +798,16 @@ int main(int argc, char *argv[]) {
 									fflush(stdout);
 									actualizarSaldo(restaDinero, id_inicioSesion);
 									actualizarCantidad(restaCantidad, id_peli);
+									int comprobacion = comprobarCompras(id_inicioSesion, id_peli);
+									if (comprobacion == 1){
+
+										actualizarCompras(cant_peli, id_peli, id_inicioSesion);
+
+									}else{
+										insertarCompra(id_peli, id_inicioSesion, cant_peli);
+									}
+
+
 									sprintf(sendBuff, "%s", "La transaccion ha sido realizada con exito.");
 									send(comm_socket, sendBuff, sizeof(sendBuff), 0);
 
