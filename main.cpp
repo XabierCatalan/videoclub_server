@@ -17,6 +17,7 @@ extern "C"{
 	sqlite3 *db;
 	sqlite3_stmt *stmt;
 	sqlite3_stmt *stmt2;
+	sqlite3_stmt *stmt3;
 
 
 	int result;
@@ -283,47 +284,93 @@ float obtenerSaldo(int id_cliente){
 }
 
 
+//void actualizarPrecio(float dinero, int id_cliente){
+//	char sql[] = "UPDATE Clientes SET Saldo = ? where Id = ?";
+//
+//			sqlite3_prepare_v2(db, sql, strlen(sql), &stmt, NULL);
+//			sqlite3_bind_double(stmt, 1, dinero);
+//			sqlite3_bind_int(stmt, 2, id_cliente);
+//
+//			 if (result != SQLITE_OK) {
+//			    fprintf(stderr, "Error en la consulta: %s\n", sqlite3_errmsg(db));
+//			    fflush(stdout);
+//
+//			  }
+//
+//			result = sqlite3_step(stmt);
+//
+//			if (result != SQLITE_DONE) {
+//				fprintf(stderr, "Error en la actualización: %s\n", sqlite3_errmsg(db));
+//				fflush(stdout);
+//
+//			  } else {
+//				 printf("titulo actualizado\n");
+//				 fflush(stdout);
+//
+//			  }
+//
+//			  sqlite3_finalize(stmt);
+//
+//}
+
+
 
 void actualizarSaldo(float dinero, int id_cliente){
+	printf("dinero_as= %f \n", dinero);
+	printf("id_as= %i \n", id_cliente);
+
+	fflush(stdout);
+
 	char sql[] = "UPDATE Clientes SET Saldo = ? where Id = ?";
 
-			sqlite3_prepare_v2(db, sql, strlen(sql), &stmt, NULL);
-			sqlite3_bind_double(stmt, 1, dinero);
-			sqlite3_bind_int(stmt, 2, id_cliente);
+			sqlite3_prepare_v2(db, sql, strlen(sql), &stmt2, NULL);
+			sqlite3_bind_double(stmt2, 1, dinero);
+			sqlite3_bind_int(stmt2, 2, id_cliente -1);
+
 
 			 if (result != SQLITE_OK) {
 			    fprintf(stderr, "Error en la consulta: %s\n", sqlite3_errmsg(db));
+			    fflush(stdout);
 
 			  }
 
-			result = sqlite3_step(stmt);
+			result = sqlite3_step(stmt2);
 
 			if (result != SQLITE_DONE) {
 				fprintf(stderr, "Error en la actualización: %s\n", sqlite3_errmsg(db));
+				fflush(stdout);
+
 
 			  } else {
 				 printf("saldo actualizado\n");
+				 fflush(stdout);
+
 
 			  }
 
-			  sqlite3_finalize(stmt);
+
+			  sqlite3_finalize(stmt2);
+
 
 }
 
 
 void actualizarCantidad(int cantidad, int id_peli){
+	printf("cantidad_ac= %i \n", cantidad);
+	printf("idPeli_ac= %i \n", id_peli);
+	fflush(stdout);
 	char sql[] = "UPDATE Peliculas SET Cantidad = ? where Id_Pelicula = ?";
 
-			sqlite3_prepare_v2(db, sql, strlen(sql), &stmt, NULL);
-			sqlite3_bind_int(stmt, 1, cantidad);
-			sqlite3_bind_int(stmt, 2, id_peli);
+			sqlite3_prepare_v2(db, sql, strlen(sql), &stmt3, NULL);
+			sqlite3_bind_int(stmt3, 1, cantidad);
+			sqlite3_bind_int(stmt3, 2, id_peli);
 
 			 if (result != SQLITE_OK) {
 			    fprintf(stderr, "Error en la consulta: %s\n", sqlite3_errmsg(db));
 
 			  }
 
-			result = sqlite3_step(stmt);
+			result = sqlite3_step(stmt3);
 
 			if (result != SQLITE_DONE) {
 				fprintf(stderr, "Error en la actualización: %s\n", sqlite3_errmsg(db));
@@ -332,8 +379,9 @@ void actualizarCantidad(int cantidad, int id_peli){
 				 printf("cantidad actualizada\n");
 
 			  }
+			 fflush(stdout);
 
-			  sqlite3_finalize(stmt);
+			  sqlite3_finalize(stmt3);
 
 }
 
@@ -559,16 +607,29 @@ int main(int argc, char *argv[]) {
 
 							Pelicula* listaPelis = cargarPelis();
 							cantidad_actual = listaPelis[id_peli - 1].cantidad;
+							printf("cantidad_a = %i \n", cantidad_actual);
 							precioPeliIndividual = listaPelis[id_peli - 1].precio;
+							printf("Precio_i = %f \n", precioPeliIndividual);
 							precioPeliTotal= precioPeliIndividual * cant_peli;
+							printf("Precio_t = %f \n", precioPeliTotal);
 							saldo_personal = obtenerSaldo(id_inicioSesion);
+
+
+							fflush(stdout);
 
 //							restaCantidad = cantidad_actual - cant_peli;
 //							restaDinero = saldo_personal - precioPeliTotal;
 
 							if(cantidad_actual>=cant_peli){
 								restaCantidad = cantidad_actual - cant_peli;
+								printf("restaCantidad= %i \n", restaCantidad);
+								fflush(stdout);
 								if(saldo_personal >= precioPeliIndividual){
+
+
+									restaDinero = saldo_personal - precioPeliTotal;
+									printf("restaDinero= %f \n", restaDinero);
+									fflush(stdout);
 									actualizarSaldo(restaDinero, id_inicioSesion);
 									actualizarCantidad(restaCantidad, id_peli);
 									sprintf(sendBuff, "%s", "La transaccion ha sido realizada con exito.");
@@ -603,6 +664,30 @@ int main(int argc, char *argv[]) {
 			cerrarBDD();
 
 								}
+		if (strcmp(recvBuff, "SUMARSALDO") == 0)
+								{
+
+			float saldoSuma;
+			float saldoTotal;
+			float saldoActual;
+
+			inicializarBDD();
+			recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
+			sscanf(recvBuff, "%f", &saldoSuma);
+			saldoActual = obtenerSaldo(id_inicioSesion);
+
+			saldoTotal = saldoActual + saldoSuma;
+
+			actualizarSaldo(saldoTotal, id_inicioSesion);
+
+			sprintf(sendBuff, "%f", saldoTotal);
+			send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+
+
+
+			cerrarBDD();
+
+								}
 
 
 
@@ -613,78 +698,78 @@ int main(int argc, char *argv[]) {
 
 
 
-	do
-	{
-		recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
-
-		printf("Command received: %s \n", recvBuff);
-		fflush(stdout);
-
-//		if (strcmp(recvBuff, "VERPELIS") == 0)
-//		{
-//			printf("verPeliculas activado");
+//	do
+//	{
+//		recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
 //
-//			inicializarBDD();
-//			Pelicula* listaPelis=cargarPelis();
-//			int cantidad=contarPeliculas();
+//		printf("Command received: %s \n", recvBuff);
+//		fflush(stdout);
+//
+////		if (strcmp(recvBuff, "VERPELIS") == 0)
+////		{
+////			printf("verPeliculas activado");
+////
+////			inicializarBDD();
+////			Pelicula* listaPelis=cargarPelis();
+////			int cantidad=contarPeliculas();
+////
+////			recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
+////			sprintf(sendBuff, "%d", cantidad);
+////			send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+////			for (int i = 0; i < cantidad; ++i) {
+////				sprintf(sendBuff, "%d", listaPelis[i].id_pelicula);
+////				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+////				sprintf(sendBuff, "%s", listaPelis[i].titulo);
+////				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+////				sprintf(sendBuff, "%s", buscarGenero(listaPelis[i].cod_genero));
+////				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+////				sprintf(sendBuff, "%s", listaPelis[i].director);
+////				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+////				sprintf(sendBuff, "%s", buscarFormato(listaPelis[i].cod_formato));
+////				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+////				sprintf(sendBuff, "%f", listaPelis[i].precio);
+////				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+////				sprintf(sendBuff, "%d", listaPelis[i].cantidad);
+////				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+////
+////				printf("peli mandada");
+////				fflush(stdout);
+////			}
+////			cerrarBDD();
+////			printf("Response sent: enviado \n");
+////			fflush(stdout);
+////		}
+//
+//		if (strcmp(recvBuff, "RAIZ") == 0)
+//		{
+//			recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
+//			int n = atoi(recvBuff);
+//			float raiz = sqrt(n);
 //
 //			recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
-//			sprintf(sendBuff, "%d", cantidad);
-//			send(comm_socket, sendBuff, sizeof(sendBuff), 0);
-//			for (int i = 0; i < cantidad; ++i) {
-//				sprintf(sendBuff, "%d", listaPelis[i].id_pelicula);
-//				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
-//				sprintf(sendBuff, "%s", listaPelis[i].titulo);
-//				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
-//				sprintf(sendBuff, "%s", buscarGenero(listaPelis[i].cod_genero));
-//				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
-//				sprintf(sendBuff, "%s", listaPelis[i].director);
-//				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
-//				sprintf(sendBuff, "%s", buscarFormato(listaPelis[i].cod_formato));
-//				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
-//				sprintf(sendBuff, "%f", listaPelis[i].precio);
-//				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
-//				sprintf(sendBuff, "%d", listaPelis[i].cantidad);
-//				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+//			if (strcmp(recvBuff, "RAIZ-END") == 0); // Nada que hacer
 //
-//				printf("peli mandada");
-//				fflush(stdout);
-//			}
-//			cerrarBDD();
-//			printf("Response sent: enviado \n");
+//			sprintf(sendBuff, "%f", raiz);
+//			send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+//			printf("Response sent: %s \n", sendBuff);
 //			fflush(stdout);
 //		}
-
-		if (strcmp(recvBuff, "RAIZ") == 0)
-		{
-			recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
-			int n = atoi(recvBuff);
-			float raiz = sqrt(n);
-
-			recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
-			if (strcmp(recvBuff, "RAIZ-END") == 0); // Nada que hacer
-
-			sprintf(sendBuff, "%f", raiz);
-			send(comm_socket, sendBuff, sizeof(sendBuff), 0);
-			printf("Response sent: %s \n", sendBuff);
-			fflush(stdout);
-		}
-
-		if (strcmp(recvBuff, "IP") == 0)
-		{
-			recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
-			if (strcmp(recvBuff, "IP-END") == 0); // Nada que hacer
-
-			strcpy(sendBuff, inet_ntoa(server.sin_addr));
-			send(comm_socket, sendBuff, sizeof(sendBuff), 0);
-			printf("Response sent: %s \n", sendBuff);
-			fflush(stdout);
-		}
-
-		if (strcmp(recvBuff, "EXIT") == 0)
-			break;
-
-	} while (1);
+//
+//		if (strcmp(recvBuff, "IP") == 0)
+//		{
+//			recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
+//			if (strcmp(recvBuff, "IP-END") == 0); // Nada que hacer
+//
+//			strcpy(sendBuff, inet_ntoa(server.sin_addr));
+//			send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+//			printf("Response sent: %s \n", sendBuff);
+//			fflush(stdout);
+//		}
+//
+//		if (strcmp(recvBuff, "EXIT") == 0)
+//			break;
+//
+//	} while (1);
 
 	// CLOSING the sockets and cleaning Winsock...
 	closesocket(comm_socket);
