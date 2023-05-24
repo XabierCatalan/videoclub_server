@@ -364,7 +364,7 @@ void actualizarSaldo(float dinero, int id_cliente){
 
 			sqlite3_prepare_v2(db, sql, strlen(sql), &stmt2, NULL);
 			sqlite3_bind_double(stmt2, 1, dinero);
-			sqlite3_bind_int(stmt2, 2, id_cliente -1);
+			sqlite3_bind_int(stmt2, 2, id_cliente);
 
 
 			 if (result != SQLITE_OK) {
