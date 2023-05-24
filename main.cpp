@@ -533,20 +533,23 @@ int main(int argc, char *argv[]) {
 
 							recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
 
-							while (strcmp(recvBuff, "SESIONEND") != 0) {
+							while (strcmp(recvBuff, "COMPRARPELISEND") != 0) {
 								if (contador == 0) {
 
 									sscanf(recvBuff, "%i", &id_peli);
+									printf("id_peli= %i \n", id_peli);
 									fflush(stdout);
 
 
 								}
 								else if (contador == 1) {
 									sscanf(recvBuff, "%i", &cant_peli);
+									printf("cantidad_peli= %i \n", cant_peli);
 									fflush(stdout);
 
 								}
 									recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
+									printf("contador= %i\n", contador);
 									contador++;
 								}
 
@@ -568,6 +571,8 @@ int main(int argc, char *argv[]) {
 								if(saldo_personal >= precioPeliIndividual){
 									actualizarSaldo(restaDinero, id_inicioSesion);
 									actualizarCantidad(restaCantidad, id_peli);
+									sprintf(sendBuff, "%s", "La transaccion ha sido realizada con exito.");
+									send(comm_socket, sendBuff, sizeof(sendBuff), 0);
 
 
 								}else{
