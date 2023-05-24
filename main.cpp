@@ -507,7 +507,7 @@ int main(int argc, char *argv[]) {
 	fflush(stdout);
 
 	int id_inicioSesion;
-
+	inicializarBDD();
 	do {
 		recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
 
@@ -520,7 +520,7 @@ int main(int argc, char *argv[]) {
 			char contra[20];
 
 
-			inicializarBDD();
+//			inicializarBDD();
 			Cliente* listaClientes = cargarClientes();
 
 
@@ -528,7 +528,7 @@ int main(int argc, char *argv[]) {
 
 			fflush(stdout);
 
-			cerrarBDD();
+//			cerrarBDD();
 
 			recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
 			while (strcmp(recvBuff, "SESIONEND") != 0) {
@@ -544,9 +544,9 @@ int main(int argc, char *argv[]) {
 				contador++;
 			}
 
-			inicializarBDD();
+//			inicializarBDD();
 			int nClientes = contarClientes();
-			cerrarBDD();
+//			cerrarBDD();
 
 
 			for (int i = 0; i < nClientes; ++i) {
@@ -569,7 +569,7 @@ int main(int argc, char *argv[]) {
 				{
 					printf("verPeliculas activado\n");
 
-					inicializarBDD();
+//					inicializarBDD();
 					Pelicula* listaPelis=cargarPelis();
 					int cantidad=contarPeliculas();
 
@@ -603,7 +603,7 @@ int main(int argc, char *argv[]) {
 //						printf("peli mandada \n");
 						fflush(stdout);
 					}
-					cerrarBDD();
+//					cerrarBDD();
 					printf("Response sent: enviado \n");
 					fflush(stdout);
 				}
@@ -649,7 +649,7 @@ int main(int argc, char *argv[]) {
 
 
 
-							inicializarBDD();
+//							inicializarBDD();
 
 							Pelicula* listaPelis = cargarPelis();
 							cantidad_actual = listaPelis[id_peli - 1].cantidad;
@@ -698,7 +698,7 @@ int main(int argc, char *argv[]) {
 
 
 
-							cerrarBDD();
+//							cerrarBDD();
 
 						}
 
@@ -707,7 +707,7 @@ int main(int argc, char *argv[]) {
 			inicializarBDD();
 			sprintf(sendBuff, "%f", obtenerSaldo(id_inicioSesion));
 			send(comm_socket, sendBuff, sizeof(sendBuff), 0);
-			cerrarBDD();
+//			cerrarBDD();
 
 								}
 		if (strcmp(recvBuff, "SUMARSALDO") == 0)
@@ -717,7 +717,7 @@ int main(int argc, char *argv[]) {
 			float saldoTotal;
 			float saldoActual;
 
-			inicializarBDD();
+//			inicializarBDD();
 			recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
 			sscanf(recvBuff, "%f", &saldoSuma);
 			saldoActual = obtenerSaldo(id_inicioSesion);
@@ -731,7 +731,7 @@ int main(int argc, char *argv[]) {
 
 
 
-			cerrarBDD();
+//			cerrarBDD();
 
 								}
 
