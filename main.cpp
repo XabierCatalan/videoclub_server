@@ -385,7 +385,7 @@ int main(int argc, char *argv[]) {
 
 		if (strcmp(recvBuff, "VERPELIS") == 0)
 				{
-					printf("verPeliculas activado");
+					printf("verPeliculas activado\n");
 
 					inicializarBDD();
 					Pelicula* listaPelis=cargarPelis();
@@ -429,20 +429,28 @@ int main(int argc, char *argv[]) {
 
 		if (strcmp(recvBuff, "COMPRARPELIS") == 0)
 						{
-							printf("comprarPelis activado");
+
 
 							int id_peli;
 							int cant_peli;
 
 							int contador = 0;
 
-							while (strcmp(recvBuff, "COMPRARPELISEND") != 0) {
+							recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
+
+							while (strcmp(recvBuff, "SESIONEND") != 0) {
 								if (contador == 0) {
-									strcpy(id, recvBuff);
+
+									sscanf(recvBuff, "%i", &id_peli);
+									printf("id_peli = %i \n", id_peli);
+									fflush(stdout);
+
 
 								}
 								else if (contador == 1) {
-									strcpy(contra, recvBuff);
+									sscanf(recvBuff, "%i", &cant_peli);
+									printf("cantidad = %i \n", cant_peli);
+									fflush(stdout);
 
 								}
 									recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
@@ -452,6 +460,7 @@ int main(int argc, char *argv[]) {
 
 
 							inicializarBDD();
+							cerrarBDD();
 
 						}
 
