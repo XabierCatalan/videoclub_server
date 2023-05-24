@@ -61,7 +61,7 @@ char* load_config(char* filename, char* buscar) {
 	        }
 	    }
 
-	    printf("resultado = %s \n", resultado);
+
 
 	    fclose(archivo);
 	    return resultado;
@@ -71,7 +71,7 @@ char* load_config(char* filename, char* buscar) {
 void inicializarBDD(){
 
 	char* rutaBDD_server = load_config("../videoclub_prog4-master/sql/prueba.txt","rutaBDD_server");
-	printf("ruta BDD = %s \n", rutaBDD_server);
+
 
 		    sqlite3_open(rutaBDD_server, &db);
 		    printf("base de datos inicializada \n");
@@ -81,6 +81,7 @@ void inicializarBDD(){
 
 void cerrarBDD(){
 	sqlite3_close(db);
+	printf("base de datos cerrada \n");
 }
 
 
@@ -349,7 +350,7 @@ int main(int argc, char *argv[]) {
 			inicializarBDD();
 			Cliente* listaClientes = cargarClientes();
 
-			printf("numero cliente: %i \n", contarClientes());
+
 			fflush(stdout);
 
 			cerrarBDD();
@@ -424,6 +425,37 @@ int main(int argc, char *argv[]) {
 					printf("Response sent: enviado \n");
 					fflush(stdout);
 				}
+
+
+		if (strcmp(recvBuff, "COMPRARPELIS") == 0)
+						{
+							printf("comprarPelis activado");
+
+							int id_peli;
+							int cant_peli;
+
+							int contador = 0;
+
+							while (strcmp(recvBuff, "COMPRARPELISEND") != 0) {
+								if (contador == 0) {
+									strcpy(id, recvBuff);
+
+								}
+								else if (contador == 1) {
+									strcpy(contra, recvBuff);
+
+								}
+									recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
+									contador++;
+								}
+
+
+
+							inicializarBDD();
+
+						}
+
+
 
 		//if (strcmp(recvBuff, "EXIT") == 0)
 			//break;
