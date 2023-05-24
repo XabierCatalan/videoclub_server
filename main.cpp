@@ -847,8 +847,9 @@ int main(int argc, char *argv[]) {
 
 
 
-		//if (strcmp(recvBuff, "EXIT") == 0)
-			//break;
+		if (strcmp(recvBuff, "EXIT") == 0){
+		break;
+		}
 
 	} while (1);
 
