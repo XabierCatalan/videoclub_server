@@ -1,1 +1,0 @@
-rutaBDD_server = ../videoclub_prog4-master/sql/BDD_Prog.db

@@ -543,7 +543,6 @@ void actualizarCompras(int cantidad, int id_p, int id_c){
 			  sqlite3_finalize(stmt3);
 
 }
-
 	// FIN METODOS BASES DE DATOS
 
 
@@ -555,8 +554,17 @@ int main(int argc, char *argv[]) {
 	struct sockaddr_in server;
 	struct sockaddr_in client;
 	char sendBuff[512], recvBuff[512];
+	FILE* f;
+
+	    char* ruta1 = "../videoclub_prog4-master/sql/prueba.txt";
+	    char* ruta2 = "rutaLogger";
+
+	    char*config = load_config(ruta1, ruta2);
+
+	    f = fopen(config, "w");
 
 	printf("\nInitialising Winsock...\n");
+	fprintf(f,"%s\n", "\nInitialising Winsock...\n");
 	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
 		printf("Failed. Error Code : %d", WSAGetLastError());
 		fflush(stdout);
@@ -564,6 +572,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	printf("Initialised.\n");
+	fprintf(f,"%s\n", "Initialised.\n");
 	fflush(stdout);
 
 	//SOCKET creation
@@ -873,81 +882,9 @@ int main(int argc, char *argv[]) {
 	} while (1);
 
 
-
-//	do
-//	{
-//		recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
-//
-//		printf("Command received: %s \n", recvBuff);
-//		fflush(stdout);
-//
-////		if (strcmp(recvBuff, "VERPELIS") == 0)
-////		{
-////			printf("verPeliculas activado");
-////
-////			inicializarBDD();
-////			Pelicula* listaPelis=cargarPelis();
-////			int cantidad=contarPeliculas();
-////
-////			recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
-////			sprintf(sendBuff, "%d", cantidad);
-////			send(comm_socket, sendBuff, sizeof(sendBuff), 0);
-////			for (int i = 0; i < cantidad; ++i) {
-////				sprintf(sendBuff, "%d", listaPelis[i].id_pelicula);
-////				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
-////				sprintf(sendBuff, "%s", listaPelis[i].titulo);
-////				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
-////				sprintf(sendBuff, "%s", buscarGenero(listaPelis[i].cod_genero));
-////				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
-////				sprintf(sendBuff, "%s", listaPelis[i].director);
-////				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
-////				sprintf(sendBuff, "%s", buscarFormato(listaPelis[i].cod_formato));
-////				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
-////				sprintf(sendBuff, "%f", listaPelis[i].precio);
-////				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
-////				sprintf(sendBuff, "%d", listaPelis[i].cantidad);
-////				send(comm_socket, sendBuff, sizeof(sendBuff), 0);
-////
-////				printf("peli mandada");
-////				fflush(stdout);
-////			}
-////			cerrarBDD();
-////			printf("Response sent: enviado \n");
-////			fflush(stdout);
-////		}
-//
-//		if (strcmp(recvBuff, "RAIZ") == 0)
-//		{
-//			recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
-//			int n = atoi(recvBuff);
-//			float raiz = sqrt(n);
-//
-//			recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
-//			if (strcmp(recvBuff, "RAIZ-END") == 0); // Nada que hacer
-//
-//			sprintf(sendBuff, "%f", raiz);
-//			send(comm_socket, sendBuff, sizeof(sendBuff), 0);
-//			printf("Response sent: %s \n", sendBuff);
-//			fflush(stdout);
-//		}
-//
-//		if (strcmp(recvBuff, "IP") == 0)
-//		{
-//			recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
-//			if (strcmp(recvBuff, "IP-END") == 0); // Nada que hacer
-//
-//			strcpy(sendBuff, inet_ntoa(server.sin_addr));
-//			send(comm_socket, sendBuff, sizeof(sendBuff), 0);
-//			printf("Response sent: %s \n", sendBuff);
-//			fflush(stdout);
-//		}
-//
-//		if (strcmp(recvBuff, "EXIT") == 0)
-//			break;
-//
-//	} while (1);
-
 	// CLOSING the sockets and cleaning Winsock...
+	cerrarBDD();
+	fclose(f);
 	closesocket(comm_socket);
 	WSACleanup();
 
