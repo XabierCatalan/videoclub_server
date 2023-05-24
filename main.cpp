@@ -111,11 +111,8 @@ int contarClientes(){
 }
 
 
-
-
-
 Cliente* cargarClientes() {
-    const char* sql = "select * from Clientes";
+    const char* sql = "SELECT * FROM Clientes";
     Cliente* clientes = new Cliente[contarClientes()];
     int contador = 0;
 
@@ -125,17 +122,20 @@ Cliente* cargarClientes() {
         result = sqlite3_step(stmt);
 
         if (result == SQLITE_ROW) {
-        	Cliente a;
+            Cliente a;
             a.id = sqlite3_column_int(stmt, 0);
 
-            a.nombre = new char[strlen((char*)sqlite3_column_text(stmt, 1)) + 1];
-            strcpy(a.nombre, (char*)sqlite3_column_text(stmt, 1));
+            const char* nombre_text = (const char*)sqlite3_column_text(stmt, 1);
+            a.nombre = new char[strlen(nombre_text) + 1];
+            strcpy(a.nombre, nombre_text);
 
-            a.mail = new char[strlen((char*)sqlite3_column_text(stmt, 2)) + 1];
-            strcpy(a.mail, (char*)sqlite3_column_text(stmt, 2));
+            const char* mail_text = (const char*)sqlite3_column_text(stmt, 2);
+            a.mail = new char[strlen(mail_text) + 1];
+            strcpy(a.mail, mail_text);
 
-            a.contra = new char[strlen((char*)sqlite3_column_text(stmt, 3)) + 1];
-            strcpy(a.contra, (char*)sqlite3_column_text(stmt, 3));
+            const char* contra_text = (const char*)sqlite3_column_text(stmt, 3);
+            a.contra = new char[strlen(contra_text) + 1];
+            strcpy(a.contra, contra_text);
 
             a.saldo = sqlite3_column_double(stmt, 4);
 
@@ -148,6 +148,45 @@ Cliente* cargarClientes() {
 
     return clientes;
 }
+
+
+
+
+
+//Cliente* cargarClientes() {
+//    const char* sql = "select * from Clientes";
+//    Cliente* clientes = new Cliente[contarClientes()];
+//    int contador = 0;
+//
+//    sqlite3_prepare_v2(db, sql, strlen(sql), &stmt, NULL);
+//
+//    do {
+//        result = sqlite3_step(stmt);
+//
+//        if (result == SQLITE_ROW) {
+//        	Cliente a;
+//            a.id = sqlite3_column_int(stmt, 0);
+//
+//            a.nombre = new char[strlen((char*)sqlite3_column_text(stmt, 1)) + 1];
+//            strcpy(a.nombre, (char*)sqlite3_column_text(stmt, 1));
+//
+//            a.mail = new char[strlen((char*)sqlite3_column_text(stmt, 2)) + 1];
+//            strcpy(a.mail, (char*)sqlite3_column_text(stmt, 2));
+//
+//            a.contra = new char[strlen((char*)sqlite3_column_text(stmt, 3)) + 1];
+//            strcpy(a.contra, (char*)sqlite3_column_text(stmt, 3));
+//
+//            a.saldo = sqlite3_column_double(stmt, 4);
+//
+//            clientes[contador] = a;
+//            contador++;
+//        }
+//    } while (result == SQLITE_ROW);
+//
+//    sqlite3_finalize(stmt);
+//
+//    return clientes;
+//}
 
 
 int contarPeliculas(){
