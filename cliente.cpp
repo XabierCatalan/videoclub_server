@@ -14,9 +14,10 @@ Cliente::Cliente() {
 	nombre=NULL;
 	mail=NULL;
 	contra=NULL;
+	this->saldo=0;
 
 }
-Cliente::Cliente(int id, char* nombre, char* mail, char* contra){
+Cliente::Cliente(int id, char* nombre, char* mail, char* contra, float saldo){
 	this->id=id;
 	this->nombre=new char[20];
 	this->nombre=nombre;
@@ -24,6 +25,7 @@ Cliente::Cliente(int id, char* nombre, char* mail, char* contra){
 	this->mail=mail;
 	this->contra=new char[20];
 	this->contra=contra;
+	this->saldo = saldo;
 }
 
 Cliente::~Cliente() {
@@ -35,4 +37,8 @@ char* Cliente::getNombre(){
 }
 char* Cliente::getContra(){
 	return this->contra;
+}
+
+int Cliente::getId(){
+	return this->id;
 }

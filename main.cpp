@@ -110,6 +110,9 @@ int contarClientes(){
 }
 
 
+
+
+
 Cliente* cargarClientes() {
     const char* sql = "select * from Clientes";
     Cliente* clientes = new Cliente[30];
@@ -133,6 +136,8 @@ Cliente* cargarClientes() {
             a.contra = new char[strlen((char*)sqlite3_column_text(stmt, 3)) + 1];
             strcpy(a.contra, (char*)sqlite3_column_text(stmt, 3));
 
+            a.saldo = sqlite3_column_double(stmt, 4);
+
             clientes[contador] = a;
             contador++;
         }
@@ -142,6 +147,7 @@ Cliente* cargarClientes() {
 
     return clientes;
 }
+
 
 int contarPeliculas(){
 	char sql[] = "SELECT COUNT(*) FROM Peliculas";
@@ -254,6 +260,83 @@ char* buscarFormato (int cod_for){
 
 		sqlite3_finalize(stmt2);
 }
+
+float obtenerSaldo(int id_cliente){
+	float saldo_cliente = 0;
+
+	char sql[] = "SELECT Saldo FROM Clientes where Id = ?";
+
+	sqlite3_prepare_v2(db, sql, strlen(sql), &stmt, NULL) ;
+	sqlite3_bind_int(stmt,1,id_cliente);
+
+	result = sqlite3_step(stmt) ;
+
+	saldo_cliente = sqlite3_column_double(stmt, 0);
+
+	printf("saldo actual = %.2f \n", saldo_cliente);
+	fflush(stdout);
+
+	sqlite3_finalize(stmt);
+
+	return saldo_cliente;
+
+}
+
+
+
+void actualizarSaldo(float dinero, int id_cliente){
+	char sql[] = "UPDATE Clientes SET Saldo = ? where Id = ?";
+
+			sqlite3_prepare_v2(db, sql, strlen(sql), &stmt, NULL);
+			sqlite3_bind_double(stmt, 1, dinero);
+			sqlite3_bind_int(stmt, 2, id_cliente);
+
+			 if (result != SQLITE_OK) {
+			    fprintf(stderr, "Error en la consulta: %s\n", sqlite3_errmsg(db));
+
+			  }
+
+			result = sqlite3_step(stmt);
+
+			if (result != SQLITE_DONE) {
+				fprintf(stderr, "Error en la actualización: %s\n", sqlite3_errmsg(db));
+
+			  } else {
+				 printf("saldo actualizado\n");
+
+			  }
+
+			  sqlite3_finalize(stmt);
+
+}
+
+
+void actualizarCantidad(int cantidad, int id_peli){
+	char sql[] = "UPDATE Peliculas SET Cantidad = ? where Id_Pelicula = ?";
+
+			sqlite3_prepare_v2(db, sql, strlen(sql), &stmt, NULL);
+			sqlite3_bind_int(stmt, 1, cantidad);
+			sqlite3_bind_int(stmt, 2, id_peli);
+
+			 if (result != SQLITE_OK) {
+			    fprintf(stderr, "Error en la consulta: %s\n", sqlite3_errmsg(db));
+
+			  }
+
+			result = sqlite3_step(stmt);
+
+			if (result != SQLITE_DONE) {
+				fprintf(stderr, "Error en la actualización: %s\n", sqlite3_errmsg(db));
+
+			  } else {
+				 printf("cantidad actualizada\n");
+
+			  }
+
+			  sqlite3_finalize(stmt);
+
+}
+
 	// FIN METODOS BASES DE DATOS
 
 
@@ -335,6 +418,9 @@ int main(int argc, char *argv[]) {
 	//SEND and RECEIVE data (CLIENT/SERVER PROTOCOL)
 	printf("Waiting for incoming commands from client... \n");
 	fflush(stdout);
+
+	int id_inicioSesion;
+
 	do {
 		recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
 
@@ -371,6 +457,8 @@ int main(int argc, char *argv[]) {
 			//int numClientes = contarClientes();
 			for (int i = 0; i < 1; ++i) {
 				if (strcmp(listaClientes[i].getNombre(), nombre) == 0 && strcmp(listaClientes[i].getContra(), contra) == 0) {
+
+					id_inicioSesion = listaClientes[i].getId();
 					correcto = 1;
 					break;  // Se encontró un cliente correcto, no es necesario seguir iterando
 				}
@@ -433,6 +521,13 @@ int main(int argc, char *argv[]) {
 
 							int id_peli;
 							int cant_peli;
+							int saldo_personal;
+							int cantidad_actual;
+							float precioPeliIndividual;
+							float precioPeliTotal;
+							float restaDinero;
+							int restaCantidad;
+
 
 							int contador = 0;
 
@@ -442,14 +537,12 @@ int main(int argc, char *argv[]) {
 								if (contador == 0) {
 
 									sscanf(recvBuff, "%i", &id_peli);
-									printf("id_peli = %i \n", id_peli);
 									fflush(stdout);
 
 
 								}
 								else if (contador == 1) {
 									sscanf(recvBuff, "%i", &cant_peli);
-									printf("cantidad = %i \n", cant_peli);
 									fflush(stdout);
 
 								}
@@ -460,9 +553,51 @@ int main(int argc, char *argv[]) {
 
 
 							inicializarBDD();
+
+							Pelicula* listaPelis = cargarPelis();
+							cantidad_actual = listaPelis[id_peli - 1].cantidad;
+							precioPeliIndividual = listaPelis[id_peli - 1].precio;
+							precioPeliTotal= precioPeliIndividual * cant_peli;
+							saldo_personal = obtenerSaldo(id_inicioSesion);
+
+//							restaCantidad = cantidad_actual - cant_peli;
+//							restaDinero = saldo_personal - precioPeliTotal;
+
+							if(cantidad_actual>=cant_peli){
+								restaCantidad = cantidad_actual - cant_peli;
+								if(saldo_personal >= precioPeliIndividual){
+									actualizarSaldo(restaDinero, id_inicioSesion);
+									actualizarCantidad(restaCantidad, id_peli);
+
+
+								}else{
+									sprintf(sendBuff, "%s", "No hay fondos suficientes en el saldo de su cuenta.");
+									send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+
+								}
+
+
+							}else{
+								sprintf(sendBuff, "%s", "No hay stock suficiente, por favor cambie la cantidad.");
+								send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+							}
+
+
+
+
+
 							cerrarBDD();
 
 						}
+
+		if (strcmp(recvBuff, "MOSTRARSALDO") == 0)
+								{
+			inicializarBDD();
+			sprintf(sendBuff, "%f", obtenerSaldo(id_inicioSesion));
+			send(comm_socket, sendBuff, sizeof(sendBuff), 0);
+			cerrarBDD();
+
+								}
 
 
 

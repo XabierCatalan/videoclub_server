@@ -14,12 +14,14 @@ public:
 	char* nombre;
 	char* mail;
 	char* contra;
+	float saldo;
 
 	Cliente();
-	Cliente(int id, char* nombre, char* mail, char* contra);
+	Cliente(int id, char* nombre, char* mail, char* contra, float saldo);
 	virtual ~Cliente();
 	char* getNombre();
 	char* getContra();
+	int getId();
 
 };
 
