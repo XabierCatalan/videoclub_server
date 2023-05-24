@@ -116,7 +116,7 @@ int contarClientes(){
 
 Cliente* cargarClientes() {
     const char* sql = "select * from Clientes";
-    Cliente* clientes = new Cliente[30];
+    Cliente* clientes = new Cliente[contarClientes()];
     int contador = 0;
 
     sqlite3_prepare_v2(db, sql, strlen(sql), &stmt, NULL);
