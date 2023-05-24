@@ -653,6 +653,7 @@ int main(int argc, char *argv[]) {
 					break;  // Se encontró un cliente correcto, no es necesario seguir iterando
 				}
 			}
+			delete[] listaClientes;
 			printf("Response sent: %d \n", correcto);
 			fflush(stdout);
 			sprintf(sendBuff, "%d", correcto);
@@ -698,6 +699,7 @@ int main(int argc, char *argv[]) {
 
 //						printf("peli mandada \n");
 						fflush(stdout);
+						delete[] listaPelis;
 					}
 //					cerrarBDD();
 					printf("Response sent: enviado \n");
