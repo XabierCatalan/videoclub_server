@@ -90,21 +90,21 @@ int contarClientes(){
 	char sql[] = "SELECT COUNT(*) FROM Clientes";
 		    int count = 0;
 
-		    sqlite3_stmt *stmt;
-		    int result = sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
+		    sqlite3_stmt *stmt2;
+		    int result = sqlite3_prepare_v2(db, sql, -1, &stmt2, 0);
 
 		    if (result != SQLITE_OK) {
 		        // Manejar el error en la preparación de la consulta
 		        return -1;
 		    }
 
-		    result = sqlite3_step(stmt);
+		    result = sqlite3_step(stmt2);
 
 		    if (result == SQLITE_ROW) {
-		        count = sqlite3_column_int(stmt, 0);
+		        count = sqlite3_column_int(stmt2, 0);
 		    }
 
-		    sqlite3_finalize(stmt);
+		    sqlite3_finalize(stmt2);
 
 		    return count;
 
@@ -524,6 +524,8 @@ int main(int argc, char *argv[]) {
 			Cliente* listaClientes = cargarClientes();
 
 
+
+
 			fflush(stdout);
 
 			cerrarBDD();
@@ -541,8 +543,13 @@ int main(int argc, char *argv[]) {
 				recv(comm_socket, recvBuff, sizeof(recvBuff), 0);
 				contador++;
 			}
-			//int numClientes = contarClientes();
-			for (int i = 0; i < 1; ++i) {
+
+			inicializarBDD();
+			int nClientes = contarClientes();
+			cerrarBDD();
+
+
+			for (int i = 0; i < nClientes; ++i) {
 				if (strcmp(listaClientes[i].getNombre(), nombre) == 0 && strcmp(listaClientes[i].getContra(), contra) == 0) {
 
 					id_inicioSesion = listaClientes[i].getId();
